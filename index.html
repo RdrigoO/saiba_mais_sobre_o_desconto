@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta property="og:image" content="https://quiz-desconto-energia-ordx.vercel.app/og-image.png" />
+  <title>Quiz Igreen Energy</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://i.imgur.com/EPEv1Qi.png') no-repeat center top;
+      background-size: contain;
+      background-color: #e9f5e9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+
+    .quiz-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2e7d32;
+      font-size: 1.5em;
+    }
+
+    .question {
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .answers label {
+      display: block;
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    .answers input {
+      margin-right: 10px;
+    }
+
+    .btn {
+      background-color: #388e3c;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-size: 1em;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: #2e7d32;
+    }
+
+    .quiz-step {
+      display: none;
+    }
+
+    .quiz-step.active {
+      display: block;
+    }
+
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        background-size: 100% auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="quiz-step active">
+      <h1>Que tal um desconto em sua conta de energia solar?</h1>
+      <button class="btn" onclick="nextStep()">Avançar</button>
+    </div>
+
+    <div class="quiz-step">
+      <h1>Qual seu gasto médio mensal com a sua conta de energia elétrica?</h1>
+      <input type="text" id="gasto" maxlength="9" oninput="formatCurrency(this)" placeholder="R$ 0,00" />
+      <button class="btn" onclick="nextStep()">Avançar</button>
+    </div>
+
+    <div class="quiz-step">
+      <h1>Qual seu consumo médio mensal com energia elétrica?</h1>
+      <div class="answers">
+        <label><input type="radio" name="consumo" value="100-300" /> 100kWh a 300kWh</label>
+        <label><input type="radio" name="consumo" value="300-500" /> 300kWh a 500kWh</label>
+        <label><input type="radio" name="consumo" value=">500" /> Mais de 500kWh</label>
+      </div>
+      <button class="btn" onclick="nextStep()">Avançar</button>
+    </div>
+
+    <div class="quiz-step">
+      <h1>Informe seu CEP</h1>
+      <input type="text" id="cep" maxlength="9" oninput="formatCEP(this)" placeholder="00000-000" />
+      <button class="btn" onclick="nextStep()">Avançar</button>
+    </div>
+
+    <div class="quiz-step">
+      <h1>Resultado</h1>
+      <div id="resultado"></div>
+      <button class="btn" onclick="nextStep();">Avançar</button>
+    </div>
+
+    <div class="quiz-step">
+      <h1>Para mais informações, preencha seus dados e fale comigo no WhatsApp</h1>
+      <input type="text" id="nome" placeholder="Nome completo" />
+      <input type="text" id="telefone" maxlength="15" oninput="formatTelefone(this)" placeholder="(11) 99999-9999" />
+      <input type="email" id="email" placeholder="Seu e-mail" />
+      <button class="btn" onclick="enviarWhatsApp()">📱 Falar via WhatsApp</button>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 0;
+    const steps = document.querySelectorAll('.quiz-step');
+
+    function nextStep() {
+      if (currentStep === 1) calcularDesconto();
+      steps[currentStep].classList.remove('active');
+      currentStep++;
+      steps[currentStep].classList.add('active');
+    }
+
+    function formatCurrency(input) {
+      let value = input.value.replace(/\D/g, '');
+      value = (parseInt(value) / 100).toFixed(2);
+      input.value = 'R$ ' + value.replace('.', ',');
+    }
+
+    function formatCEP(input) {
+      let value = input.value.replace(/\D/g, '').slice(0, 8);
+      if (value.length > 5) {
+        input.value = value.slice(0, 5) + '-' + value.slice(5);
+      } else {
+        input.value = value;
+      }
+    }
+
+    function formatTelefone(input) {
+      let value = input.value.replace(/\D/g, '').slice(0, 11);
+      if (value.length > 6) {
+        input.value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+      } else if (value.length > 2) {
+        input.value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+      } else {
+        input.value = value;
+      }
+    }
+
+    function calcularDesconto() {
+      const valor = document.getElementById('gasto').value.replace(/\D/g, '');
+      const mensal = (parseInt(valor) / 100) * 0.1;
+      const anual = mensal * 12;
+      const co2 = (mensal * 0.07).toFixed(2);
+      document.getElementById('resultado').innerHTML = `
+        <p>Você pode economizar <strong>R$ ${mensal.toFixed(2).replace('.', ',')}</strong> por mês e
+        <strong>R$ ${anual.toFixed(2).replace('.', ',')}</strong> por ano!</p>
+        <p>💚 Isso sem custo e sem fidelização.</p>
+        <p>🌱 Sua escolha evita a emissão de aproximadamente <strong>${co2} kg de CO₂</strong> por mês!</p>
+      `;
+    }
+
+    function enviarWhatsApp() {
+      const nome = document.getElementById('nome').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!nome || !telefone || !email.includes('@')) {
+        alert('Preencha todos os campos corretamente.');
+        return;
+      }
+
+      const msg = `Olá, meu nome é ${nome}. Fiz o quiz e quero saber mais sobre o desconto na conta de energia.`;
+      const numeroEmpresa = '5575981100831'; // número fixo para receber a mensagem
+      window.open(`https://wa.me/${numeroEmpresa}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+  </script>
+</body>
+</html>
