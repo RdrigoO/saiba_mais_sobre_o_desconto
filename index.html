@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- OG TAG para WhatsApp -->
-  <meta property="og:title" content="Quiz Energia Solar - Descubra quanto você pode economizar!" />
+  <meta property="og:title" content="Descubra o quanto pode economizar!" />
   <meta property="og:description" content="Responda algumas perguntas rápidas e veja quanto você pode economizar com energia solar!" />
   <meta property="og:image" content="https://images.unsplash.com/photo-1584277267900-94c9dc3cde2b?auto=format&fit=crop&w=1200&q=80" />
   <meta property="og:url" content="https://quiz-desconto-energia-ordx.vercel.app/" />
@@ -17,7 +17,7 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: url('https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?auto=format&fit=crop&w=1500&q=80') no-repeat center top;
+      background: url('https://images.unsplash.com/photo-1584277267900-94c9dc3cde2b?auto=format&fit=crop&w=1500&q=80') no-repeat center top;
       background-size: cover;
       background-attachment: fixed;
       background-color: #e9f5e9;
@@ -150,10 +150,37 @@
     const steps = document.querySelectorAll('.quiz-step');
 
     function nextStep() {
+      if (!validarEtapa()) return;
       if (currentStep === 1) calcularDesconto();
       steps[currentStep].classList.remove('active');
       currentStep++;
       steps[currentStep].classList.add('active');
+    }
+
+    function validarEtapa() {
+      if (currentStep === 1) {
+        const gasto = document.getElementById('gasto').value.trim();
+        if (!gasto || gasto === 'R$ 0,00') {
+          alert('Informe seu gasto médio.');
+          return false;
+        }
+      }
+      if (currentStep === 2) {
+        const radios = document.querySelectorAll('input[name="consumo"]');
+        const selecionado = Array.from(radios).some(r => r.checked);
+        if (!selecionado) {
+          alert('Selecione seu consumo médio.');
+          return false;
+        }
+      }
+      if (currentStep === 3) {
+        const cep = document.getElementById('cep').value.trim();
+        if (!cep || cep.length < 9) {
+          alert('Informe um CEP válido.');
+          return false;
+        }
+      }
+      return true;
     }
 
     function formatCurrency(input) {
